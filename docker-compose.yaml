@@ -9,4 +9,4 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE}
     container_name: eventaro-db
     volumes:
-      - db-data:/var/lib/mysql
+      - ./db-data:/var/lib/mysql
