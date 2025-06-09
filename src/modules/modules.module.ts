@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfig } from '../database/database.config';
 import { TypeEventModule } from './type-event/type-event.module';
 import { OrganizationModule } from './organization/organization.module';
+import { UbicationModule } from './ubication/ubication.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { OrganizationModule } from './organization/organization.module';
     TypeOrmModule.forRoot(databaseConfig()),
     TypeEventModule,
     OrganizationModule,
+    UbicationModule,
   ],
   exports: [TypeOrmModule],
 })
