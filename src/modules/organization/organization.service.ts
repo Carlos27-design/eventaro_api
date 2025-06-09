@@ -15,7 +15,7 @@ export class OrganizationService {
   constructor(
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
-  ) {}
+  ) { }
 
   public async create(createOrganizationDto: CreateOrganizationDto) {
     const organization = this.organizationRepository.create(
