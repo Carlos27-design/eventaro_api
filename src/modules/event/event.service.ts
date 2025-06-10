@@ -14,6 +14,7 @@ import { TypeEventService } from '../type-event/type-event.service';
 import { status } from 'src/shared/status.enum';
 import { validate as isUUID } from 'uuid';
 import { UpdateEventDto } from './dtos/update-event.dto';
+import { Ubication } from '../ubication/entity/ubication.entity';
 
 @Injectable()
 export class EventService {
@@ -122,8 +123,7 @@ export class EventService {
 
     if (!event) throw new BadRequestException(`Event not ${id} not found`);
 
-    const { images, ubication, organizationId, typeEventId, ...toUpdate } =
-      updateEventDto;
+    const { images, ubication, ...toUpdate } = updateEventDto;
 
     const eventUpdated = await this.eventRepository.preload({
       id,
@@ -147,6 +147,14 @@ export class EventService {
         eventUpdated.images = images.map((image) =>
           this.imageEventRepository.create({ url: image.url }),
         );
+      }
+
+      if (ubication) {
+        await queryRunner.manager.delete(Ubication, {
+          event: { id },
+        });
+
+        eventUpdated.ubication = await this._ubicationService.create(ubication);
       }
 
       await queryRunner.manager.save(eventUpdated);
