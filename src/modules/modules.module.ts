@@ -8,6 +8,7 @@ import { OrganizationModule } from './organization/organization.module';
 import { UbicationModule } from './ubication/ubication.module';
 import { EventModule } from './event/event.module';
 import { FilesModule } from './files/files.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FilesModule } from './files/files.module';
     UbicationModule,
     EventModule,
     FilesModule,
+    AuthModule,
   ],
   exports: [TypeOrmModule],
 })
