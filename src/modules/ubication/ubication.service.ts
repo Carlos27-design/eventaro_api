@@ -53,7 +53,7 @@ export class UbicationService {
     return ubication;
   }
 
-  public async delete(id: string) {
+  public async remove(id: string) {
     const ubication = await this.findOne(id);
 
     ubication.status = 'INACTIVE';

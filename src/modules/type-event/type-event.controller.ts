@@ -22,7 +22,7 @@ export class TypeEventController {
 
   @Get(':term')
   findOne(@Param('term') term: string) {
-    return this._typeEventService.finOne(term);
+    return this._typeEventService.findOne(term);
   }
 
   @Post()

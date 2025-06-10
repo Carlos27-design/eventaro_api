@@ -6,6 +6,8 @@ import { databaseConfig } from '../database/database.config';
 import { TypeEventModule } from './type-event/type-event.module';
 import { OrganizationModule } from './organization/organization.module';
 import { UbicationModule } from './ubication/ubication.module';
+import { EventModule } from './event/event.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { UbicationModule } from './ubication/ubication.module';
     TypeEventModule,
     OrganizationModule,
     UbicationModule,
+    EventModule,
+    FilesModule,
   ],
   exports: [TypeOrmModule],
 })

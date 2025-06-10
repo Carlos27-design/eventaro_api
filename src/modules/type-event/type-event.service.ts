@@ -43,7 +43,7 @@ export class TypeEventService {
     return typeEvents;
   }
 
-  public async finOne(term: string) {
+  public async findOne(term: string) {
     let typeEvent: TypeEvent;
 
     const queryBuilder =
@@ -83,7 +83,7 @@ export class TypeEventService {
   }
 
   public async remove(id: string) {
-    const typeEvent = await this.finOne(id);
+    const typeEvent = await this.findOne(id);
 
     if (!typeEvent) {
       throw new BadRequestException(`Type event not ${id} not found`);
