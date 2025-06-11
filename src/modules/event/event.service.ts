@@ -15,6 +15,7 @@ import { status } from 'src/shared/status.enum';
 import { validate as isUUID } from 'uuid';
 import { UpdateEventDto } from './dtos/update-event.dto';
 import { Ubication } from '../ubication/entity/ubication.entity';
+import { statusEvent } from 'src/shared/status-event.enum';
 
 @Injectable()
 export class EventService {
@@ -176,7 +177,9 @@ export class EventService {
 
     if (!event) throw new BadRequestException(`Event not ${id} not found`);
 
-    await this.eventRepository.update(event.id, { status: status.INACTIVE });
+    await this.eventRepository.update(event.id, {
+      statusEvent: statusEvent.CANCELADO,
+    });
 
     if (event.images.length > 0) {
       await this.imageEventRepository.update(

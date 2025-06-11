@@ -4,6 +4,7 @@ import { ImageEvent } from './image-event.entity';
 import { Ubication } from 'src/modules/ubication/entity/ubication.entity';
 import { TypeEvent } from 'src/modules/type-event/entity/type-event.entity';
 import { Organization } from 'src/modules/organization/entity/organization.entity';
+import { Inscription } from 'src/modules/inscription/entity/inscription.entity';
 
 @Entity()
 export class Event extends StandardEntity {
@@ -35,4 +36,7 @@ export class Event extends StandardEntity {
 
   @ManyToOne(() => Organization, (organization) => organization.event)
   organization: Organization;
+
+  @OneToMany(() => Inscription, (inscription) => inscription.event)
+  inscription: Inscription[];
 }

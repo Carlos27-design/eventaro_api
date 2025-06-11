@@ -17,5 +17,6 @@ import { UbicationModule } from '../ubication/ubication.module';
     TypeEventModule,
     UbicationModule,
   ],
+  exports: [EventService, TypeOrmModule],
 })
 export class EventModule {}

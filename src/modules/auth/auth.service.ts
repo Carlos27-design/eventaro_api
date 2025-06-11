@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces';
 import { LoginUserDto } from './dtos/login-user.dto';
+import { status } from 'src/shared/status.enum';
 
 @Injectable()
 export class AuthService {
@@ -70,6 +71,19 @@ export class AuthService {
       ...user,
       token: this.getJwtToken({ id: user.id }),
     };
+  }
+
+  public getOne(id: string) {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    const user = queryBuilder
+      .where('user.id = :id', { id: id })
+      .andWhere('user.status = :status', { status: status.ACTIVE })
+      .getOne();
+
+    if (!user) throw new BadRequestException('User not found');
+
+    return user;
   }
 
   private getJwtToken(payload: JwtPayload) {
