@@ -18,7 +18,7 @@ import { ValidRoles } from '../auth/interfaces';
 export class EventController {
   constructor(private readonly _eventService: EventService) {}
 
-  @Auth(ValidRoles.ADMIN)
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZADOR)
   @Post()
   create(@Body() createEventDto: CreateEventDto) {
     return this._eventService.create(createEventDto);
@@ -34,7 +34,7 @@ export class EventController {
     return this._eventService.findOne(term);
   }
 
-  @Auth(ValidRoles.ADMIN)
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZADOR)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -43,7 +43,7 @@ export class EventController {
     return this._eventService.update(id, updateEventDto);
   }
 
-  @Auth(ValidRoles.ADMIN)
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZADOR)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this._eventService.remove(id);
