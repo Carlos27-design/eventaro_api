@@ -36,7 +36,7 @@ export class AuthService {
       delete user.password;
 
       return {
-        ...user,
+        user: user,
         token: this.getJwtToken({ id: user.id }),
       };
     } catch (error) {
@@ -61,14 +61,14 @@ export class AuthService {
     delete user.password;
 
     return {
-      ...user,
+      user: user,
       token: this.getJwtToken({ id: user.id }),
     };
   }
 
   public async checkAuthStatus(user: User) {
     return {
-      ...user,
+      user: user,
       token: this.getJwtToken({ id: user.id }),
     };
   }

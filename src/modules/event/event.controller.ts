@@ -13,6 +13,8 @@ import { CreateEventDto } from './dtos/create-event.dto';
 import { UpdateEventDto } from './dtos/update-event.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/interfaces';
+import { GetUser } from '../auth/decorators/get-user.decorator';
+import { User } from '../auth/entity/user.entity';
 
 @Controller('event')
 export class EventController {
@@ -20,8 +22,8 @@ export class EventController {
 
   @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZADOR)
   @Post()
-  create(@Body() createEventDto: CreateEventDto) {
-    return this._eventService.create(createEventDto);
+  create(@Body() createEventDto: CreateEventDto, @GetUser() user: User) {
+    return this._eventService.create(createEventDto, user);
   }
 
   @Get()
@@ -39,13 +41,14 @@ export class EventController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateEventDto: UpdateEventDto,
+    @GetUser() user: User,
   ) {
-    return this._eventService.update(id, updateEventDto);
+    return this._eventService.update(id, updateEventDto, user);
   }
 
   @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZADOR)
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this._eventService.remove(id);
+  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
+    return this._eventService.remove(id, user);
   }
 }

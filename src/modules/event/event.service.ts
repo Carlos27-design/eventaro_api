@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { validate as isUUID } from 'uuid';
 import { UpdateEventDto } from './dtos/update-event.dto';
 import { Ubication } from '../ubication/entity/ubication.entity';
 import { statusEvent } from 'src/shared/status-event.enum';
+import { User } from '../auth/entity/user.entity';
 
 @Injectable()
 export class EventService {
@@ -34,7 +36,7 @@ export class EventService {
     private readonly _dataSource: DataSource,
   ) {}
 
-  public async create(createEventDto: CreateEventDto) {
+  public async create(createEventDto: CreateEventDto, user: User) {
     const {
       images = [],
       ubication,
@@ -65,6 +67,8 @@ export class EventService {
 
         eventCreated.images = imagesCreated;
 
+        eventCreated.user = user;
+
         return await this.eventRepository.save(eventCreated);
       } else {
         throw new BadRequestException('Organization or type event not found');
@@ -82,6 +86,7 @@ export class EventService {
       .leftJoinAndSelect('event.typeEvent', 'typeEvent')
       .leftJoinAndSelect('event.ubication', 'ubication')
       .leftJoinAndSelect('event.images', 'images')
+      .leftJoinAndSelect('event.user', 'user')
       .where('event.status = :status', { status: status.ACTIVE })
       .getMany();
 
@@ -100,6 +105,7 @@ export class EventService {
         .leftJoinAndSelect('event.typeEvent', 'typeEvent')
         .leftJoinAndSelect('event.ubication', 'ubication')
         .leftJoinAndSelect('event.images', 'images')
+        .leftJoinAndSelect('event.user', 'user')
         .where('event.id = :id', { id: term })
         .andWhere('event.status = :status', { status: status.ACTIVE })
         .getOne();
@@ -119,8 +125,13 @@ export class EventService {
     return event;
   }
 
-  public async update(id: string, updateEventDto: UpdateEventDto) {
+  public async update(id: string, updateEventDto: UpdateEventDto, user: User) {
     const event = await this.findOne(id);
+
+    if (event.user.id !== user.id)
+      throw new ForbiddenException(
+        "You don't have permission to update this event",
+      );
 
     if (!event) throw new BadRequestException(`Event not ${id} not found`);
 
@@ -129,6 +140,7 @@ export class EventService {
     const eventUpdated = await this.eventRepository.preload({
       id,
       ...toUpdate,
+      user,
     });
 
     if (!eventUpdated)
@@ -172,14 +184,17 @@ export class EventService {
     return eventUpdated;
   }
 
-  public async remove(id: string) {
+  public async remove(id: string, user: User) {
     const event = await this.findOne(id);
+
+    if (event.user.id !== user.id)
+      throw new ForbiddenException(
+        "You don't have permission to delete this event",
+      );
 
     if (!event) throw new BadRequestException(`Event not ${id} not found`);
 
-    await this.eventRepository.update(event.id, {
-      statusEvent: statusEvent.CANCELADO,
-    });
+    await this.eventRepository.update(event.id, { status: status.INACTIVE });
 
     if (event.images.length > 0) {
       await this.imageEventRepository.update(

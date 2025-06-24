@@ -5,6 +5,7 @@ import { Ubication } from 'src/modules/ubication/entity/ubication.entity';
 import { TypeEvent } from 'src/modules/type-event/entity/type-event.entity';
 import { Organization } from 'src/modules/organization/entity/organization.entity';
 import { Inscription } from 'src/modules/inscription/entity/inscription.entity';
+import { User } from 'src/modules/auth/entity/user.entity';
 
 @Entity()
 export class Event extends StandardEntity {
@@ -39,4 +40,7 @@ export class Event extends StandardEntity {
 
   @OneToMany(() => Inscription, (inscription) => inscription.event)
   inscription: Inscription[];
+
+  @ManyToOne(() => User, (user) => user.event)
+  user: User;
 }

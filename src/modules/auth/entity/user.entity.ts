@@ -1,3 +1,4 @@
+import { Event } from 'src/modules/event/entity/event.entity';
 import { Inscription } from 'src/modules/inscription/entity/inscription.entity';
 import { StandardEntity } from 'src/modules/standard.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
@@ -18,4 +19,7 @@ export class User extends StandardEntity {
 
   @OneToMany(() => Inscription, (inscription) => inscription.user)
   inscripition: Inscription[];
+
+  @OneToMany(() => Event, (event) => event.user)
+  event: Event[];
 }
