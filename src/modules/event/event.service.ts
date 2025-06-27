@@ -88,6 +88,25 @@ export class EventService {
       .leftJoinAndSelect('event.images', 'images')
       .leftJoinAndSelect('event.user', 'user')
       .where('event.status = :status', { status: status.ACTIVE })
+
+      .getMany();
+
+    if (!events) throw new BadRequestException('Events not found');
+
+    return events;
+  }
+
+  public async findAllByTypeEvent(typeEventName: string) {
+    const queryBuilder = this.eventRepository.createQueryBuilder('event');
+
+    const events = await queryBuilder
+      .leftJoinAndSelect('event.organization', 'organization')
+      .leftJoinAndSelect('event.typeEvent', 'typeEvent')
+      .leftJoinAndSelect('event.ubication', 'ubication')
+      .leftJoinAndSelect('event.images', 'images')
+      .leftJoinAndSelect('event.user', 'user')
+      .where('event.status = :status', { status: status.ACTIVE })
+      .andWhere('typeEvent.name = :name', { name: typeEventName })
       .getMany();
 
     if (!events) throw new BadRequestException('Events not found');
@@ -107,6 +126,7 @@ export class EventService {
         .leftJoinAndSelect('event.images', 'images')
         .leftJoinAndSelect('event.user', 'user')
         .where('event.id = :id', { id: term })
+
         .andWhere('event.status = :status', { status: status.ACTIVE })
         .getOne();
     } else {
@@ -115,6 +135,7 @@ export class EventService {
         .leftJoinAndSelect('event.typeEvent', 'typeEvent')
         .leftJoinAndSelect('event.ubication', 'ubication')
         .leftJoinAndSelect('event.images', 'images')
+        .leftJoinAndSelect('event.user', 'user')
         .where('event.name = :name', { name: term })
         .andWhere('event.status = :status', { status: status.ACTIVE })
         .getOne();
@@ -194,14 +215,9 @@ export class EventService {
 
     if (!event) throw new BadRequestException(`Event not ${id} not found`);
 
-    await this.eventRepository.update(event.id, { status: status.INACTIVE });
-
-    if (event.images.length > 0) {
-      await this.imageEventRepository.update(
-        event.images.map((image) => image.id),
-        { status: status.INACTIVE },
-      );
-    }
+    await this.eventRepository.update(event.id, {
+      statusEvent: statusEvent.CANCELADO,
+    });
   }
 
   private handleDBError(error: any) {

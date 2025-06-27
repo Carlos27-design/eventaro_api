@@ -36,6 +36,11 @@ export class EventController {
     return this._eventService.findOne(term);
   }
 
+  @Get('search/:term')
+  findAllByTypeEvent(@Param('term') term: string) {
+    return this._eventService.findAllByTypeEvent(term);
+  }
+
   @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
   @Patch(':id')
   update(

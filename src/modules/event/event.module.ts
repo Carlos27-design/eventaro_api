@@ -7,6 +7,7 @@ import { ImageEvent } from './entity/image-event.entity';
 import { OrganizationModule } from '../organization/organization.module';
 import { TypeEventModule } from '../type-event/type-event.module';
 import { UbicationModule } from '../ubication/ubication.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [EventController],
@@ -16,6 +17,7 @@ import { UbicationModule } from '../ubication/ubication.module';
     OrganizationModule,
     TypeEventModule,
     UbicationModule,
+    AuthModule,
   ],
   exports: [EventService, TypeOrmModule],
 })

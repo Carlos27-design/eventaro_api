@@ -17,13 +17,11 @@ import { ValidRoles } from '../auth/interfaces';
 export class TypeEventController {
   constructor(private readonly _typeEventService: TypeEventService) {}
 
-  @Auth(ValidRoles.ADMIN)
   @Get()
   findAll() {
     return this._typeEventService.findAll();
   }
 
-  @Auth(ValidRoles.ADMIN)
   @Get(':term')
   findOne(@Param('term') term: string) {
     return this._typeEventService.findOne(term);
