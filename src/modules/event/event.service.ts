@@ -96,6 +96,24 @@ export class EventService {
     return events;
   }
 
+  public async getEventsAdmin() {
+    const queryBuilder = this.eventRepository.createQueryBuilder('event');
+
+    const events = await queryBuilder
+      .leftJoinAndSelect('event.organization', 'organization')
+      .leftJoinAndSelect('event.typeEvent', 'typeEvent')
+      .leftJoinAndSelect('event.ubication', 'ubication')
+      .leftJoinAndSelect('event.images', 'images')
+      .leftJoinAndSelect('event.user', 'user')
+      .where('event.status = :status', { status: status.ACTIVE })
+
+      .getMany();
+
+    if (!events) throw new BadRequestException('Events not found');
+
+    return events;
+  }
+
   public async findAllByTypeEvent(typeEventName: string) {
     const queryBuilder = this.eventRepository.createQueryBuilder('event');
 

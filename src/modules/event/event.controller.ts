@@ -31,6 +31,12 @@ export class EventController {
     return this._eventService.findAll();
   }
 
+  @Get('admin')
+  @Auth(ValidRoles.ADMIN)
+  getEventsAdmin() {
+    return this._eventService.getEventsAdmin();
+  }
+
   @Get(':term')
   findOne(@Param('term') term: string) {
     return this._eventService.findOne(term);
