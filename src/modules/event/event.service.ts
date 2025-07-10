@@ -36,7 +36,7 @@ export class EventService {
     private readonly _dataSource: DataSource,
   ) {}
 
-  public async create(createEventDto: CreateEventDto, user: User) {
+  public async create(createEventDto: CreateEventDto) {
     const {
       images = [],
       ubication,
@@ -62,12 +62,10 @@ export class EventService {
         });
 
         const imagesCreated = images.map((image) =>
-          this.imageEventRepository.create(image),
+          this.imageEventRepository.create({ url: image }),
         );
 
         eventCreated.images = imagesCreated;
-
-        eventCreated.user = user;
 
         return await this.eventRepository.save(eventCreated);
       } else {
@@ -197,7 +195,7 @@ export class EventService {
         });
 
         eventUpdated.images = images.map((image) =>
-          this.imageEventRepository.create({ url: image.url }),
+          this.imageEventRepository.create({ url: image }),
         );
       }
 
@@ -223,13 +221,8 @@ export class EventService {
     return eventUpdated;
   }
 
-  public async remove(id: string, user: User) {
+  public async remove(id: string) {
     const event = await this.findOne(id);
-
-    if (event.user.id !== user.id)
-      throw new ForbiddenException(
-        "You don't have permission to delete this event",
-      );
 
     if (!event) throw new BadRequestException(`Event not ${id} not found`);
 
@@ -244,7 +237,7 @@ export class EventService {
     }
 
     throw new InternalServerErrorException(
-      'Unexpected error, check server logs',
+      'Unexpected error, check server logs' + error,
     );
   }
 }

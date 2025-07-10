@@ -46,6 +46,6 @@ export class FilesController {
 
     const secureUrl = `${this._configService.get('HOST_API')}/files/event/${file.filename}`;
 
-    return { secureUrl, imageName: file.filename };
+    return { secureUrl, fileName: file.filename };
   }
 }

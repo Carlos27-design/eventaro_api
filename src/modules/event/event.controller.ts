@@ -20,10 +20,9 @@ import { User } from '../auth/entity/user.entity';
 export class EventController {
   constructor(private readonly _eventService: EventService) {}
 
-  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
   @Post()
-  create(@Body() createEventDto: CreateEventDto, @GetUser() user: User) {
-    return this._eventService.create(createEventDto, user);
+  create(@Body() createEventDto: CreateEventDto) {
+    return this._eventService.create(createEventDto);
   }
 
   @Get()
@@ -47,7 +46,6 @@ export class EventController {
     return this._eventService.findAllByTypeEvent(term);
   }
 
-  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -57,9 +55,8 @@ export class EventController {
     return this._eventService.update(id, updateEventDto, user);
   }
 
-  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
-    return this._eventService.remove(id, user);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this._eventService.remove(id);
   }
 }

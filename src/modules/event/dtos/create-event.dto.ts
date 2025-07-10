@@ -9,18 +9,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-export class CreateImageEventDto {
-  @IsString()
-  @IsNotEmpty()
-  url: string;
-}
-
-export class CreateUbicationDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-}
-
 export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
@@ -36,21 +24,22 @@ export class CreateEventDto {
   @IsDateString()
   finalDate: Date;
 
+  @IsString({
+    each: true,
+  })
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateImageEventDto)
   @IsOptional()
-  images?: CreateImageEventDto[];
+  images?: string[];
 
-  @ValidateNested()
-  @Type(() => CreateUbicationDto)
-  ubication: CreateUbicationDto;
+  @IsString()
+  @IsNotEmpty()
+  ubication: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   typeEventId: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   organizationId: string;
 }

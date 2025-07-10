@@ -21,7 +21,7 @@ export class Event extends StandardEntity {
   @Column('date', { nullable: false })
   finalDate: Date;
 
-  @Column('varchar', { nullable: false, default: 'CREADO', length: 8 })
+  @Column('varchar', { nullable: false, default: 'CREADO', length: 13 })
   statusEvent: string;
 
   @OneToMany(() => ImageEvent, (imageEvent) => imageEvent.event, {

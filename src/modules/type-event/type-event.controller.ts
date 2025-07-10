@@ -27,13 +27,11 @@ export class TypeEventController {
     return this._typeEventService.findOne(term);
   }
 
-  @Auth(ValidRoles.ADMIN)
   @Post()
   create(@Body() createTypeEventDto: CreateTypeEventDto) {
     return this._typeEventService.create(createTypeEventDto);
   }
 
-  @Auth(ValidRoles.ADMIN)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -42,7 +40,6 @@ export class TypeEventController {
     return this._typeEventService.update(id, updateTypeEventDto);
   }
 
-  @Auth(ValidRoles.ADMIN)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this._typeEventService.remove(id);

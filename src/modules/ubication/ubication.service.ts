@@ -13,11 +13,9 @@ export class UbicationService {
 
   private readonly MAPBOX_TOKEN = process.env.API_KEY_MAPBOX;
 
-  public async create(createUbicationDto: CreateUbicationDto) {
-    const { name } = createUbicationDto;
+  public async create(ubicacion: string) {
     try {
-      const encodedName = encodeURIComponent(name);
-      const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${encodedName}&access_token=${this.MAPBOX_TOKEN}`;
+      const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${ubicacion}&access_token=${this.MAPBOX_TOKEN}`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -28,7 +26,7 @@ export class UbicationService {
       const [lat, lng] = data.features[0].geometry.coordinates;
 
       const ubication = this.ubicationRepository.create({
-        name,
+        name: ubicacion,
         latitude: lat,
         longitude: lng,
       });
