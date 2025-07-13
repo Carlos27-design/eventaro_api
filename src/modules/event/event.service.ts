@@ -76,6 +76,13 @@ export class EventService {
     }
   }
 
+  public findPlain(event: Event) {
+    const { images = [], ...rest } = event;
+    return {
+      ...rest,
+      images: images.map((image) => image.url),
+    };
+  }
   public async findAll() {
     const queryBuilder = this.eventRepository.createQueryBuilder('event');
 
@@ -89,9 +96,11 @@ export class EventService {
 
       .getMany();
 
-    if (!events) throw new BadRequestException('Events not found');
+    const plainEvents = events.map((event) => this.findPlain(event));
 
-    return events;
+    if (!plainEvents) throw new BadRequestException('Events not found');
+
+    return plainEvents;
   }
 
   public async getEventsAdmin() {
@@ -104,12 +113,13 @@ export class EventService {
       .leftJoinAndSelect('event.images', 'images')
       .leftJoinAndSelect('event.user', 'user')
       .where('event.status = :status', { status: status.ACTIVE })
-
       .getMany();
 
-    if (!events) throw new BadRequestException('Events not found');
+    const plainEvents = events.map((event) => this.findPlain(event));
 
-    return events;
+    if (!plainEvents) throw new BadRequestException('Events not found');
+
+    return plainEvents;
   }
 
   public async findAllByTypeEvent(typeEventName: string) {
@@ -125,9 +135,11 @@ export class EventService {
       .andWhere('typeEvent.name = :name', { name: typeEventName })
       .getMany();
 
-    if (!events) throw new BadRequestException('Events not found');
+    const plainEvents = events.map((event) => this.findPlain(event));
 
-    return events;
+    if (!plainEvents) throw new BadRequestException('Events not found');
+
+    return plainEvents;
   }
 
   public async findOne(term: string) {
@@ -159,16 +171,13 @@ export class EventService {
 
     if (!event) throw new BadRequestException(`Event not ${term} not found`);
 
-    return event;
+    const plainEvent = this.findPlain(event);
+
+    return plainEvent;
   }
 
-  public async update(id: string, updateEventDto: UpdateEventDto, user: User) {
+  public async update(id: string, updateEventDto: UpdateEventDto) {
     const event = await this.findOne(id);
-
-    if (event.user.id !== user.id)
-      throw new ForbiddenException(
-        "You don't have permission to update this event",
-      );
 
     if (!event) throw new BadRequestException(`Event not ${id} not found`);
 
@@ -177,7 +186,6 @@ export class EventService {
     const eventUpdated = await this.eventRepository.preload({
       id,
       ...toUpdate,
-      user,
     });
 
     if (!eventUpdated)
@@ -190,21 +198,21 @@ export class EventService {
 
     try {
       if (images) {
-        await queryRunner.manager.delete(ImageEvent, {
-          event: { id },
+        // Aseguramos que images sea un arreglo
+        const imagesArray = Array.isArray(images) ? images : [images];
+
+        // Buscar imágenes antiguas y borrarlas
+        const imagesToDelete = await this.imageEventRepository.find({
+          where: { event: { id } },
+          relations: ['event'],
         });
 
-        eventUpdated.images = images.map((image) =>
-          this.imageEventRepository.create({ url: image }),
+        await this.imageEventRepository.remove(imagesToDelete);
+
+        // Crear nuevas entidades de imagen con urls correctas
+        eventUpdated.images = imagesArray.map((imageUrl) =>
+          this.imageEventRepository.create({ url: imageUrl }),
         );
-      }
-
-      if (ubication) {
-        await queryRunner.manager.delete(Ubication, {
-          event: { id },
-        });
-
-        eventUpdated.ubication = await this._ubicationService.create(ubication);
       }
 
       await queryRunner.manager.save(eventUpdated);

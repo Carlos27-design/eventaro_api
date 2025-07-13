@@ -50,9 +50,8 @@ export class EventController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateEventDto: UpdateEventDto,
-    @GetUser() user: User,
   ) {
-    return this._eventService.update(id, updateEventDto, user);
+    return this._eventService.update(id, updateEventDto);
   }
 
   @Delete(':id')
