@@ -15,7 +15,7 @@ export class User extends StandardEntity {
   email: string;
 
   @Column('varchar', { nullable: false, default: 'USER' })
-  roles: string[];
+  roles: string;
 
   @OneToMany(() => Inscription, (inscription) => inscription.user)
   inscripition: Inscription[];

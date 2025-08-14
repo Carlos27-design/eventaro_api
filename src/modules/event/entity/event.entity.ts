@@ -1,5 +1,5 @@
 import { StandardEntity } from 'src/modules/standard.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { ImageEvent } from './image-event.entity';
 import { Ubication } from 'src/modules/ubication/entity/ubication.entity';
 import { TypeEvent } from 'src/modules/type-event/entity/type-event.entity';
@@ -42,5 +42,6 @@ export class Event extends StandardEntity {
   inscription: Inscription[];
 
   @ManyToOne(() => User, (user) => user.event)
+  @JoinColumn({ name: 'userId' })
   user: User;
 }

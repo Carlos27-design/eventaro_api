@@ -36,7 +36,7 @@ export class EventService {
     private readonly _dataSource: DataSource,
   ) {}
 
-  public async create(createEventDto: CreateEventDto) {
+  public async create(createEventDto: CreateEventDto, user: User) {
     const {
       images = [],
       ubication,
@@ -56,6 +56,7 @@ export class EventService {
       if (organization.id === organizationId && typeEvent.id === typeEventId) {
         const eventCreated = this.eventRepository.create({
           ...event,
+          user: { id: user.id },
           ubication: ubicationCreated,
           organization: { id: organizationId },
           typeEvent: { id: typeEventId },
@@ -95,6 +96,28 @@ export class EventService {
       .where('event.status = :status', { status: status.ACTIVE })
 
       .getMany();
+
+    const plainEvents = events.map((event) => this.findPlain(event));
+
+    if (!plainEvents) throw new BadRequestException('Events not found');
+
+    return plainEvents;
+  }
+
+  public async getEventsByOrganize(user: User) {
+    const queryBuilder = this.eventRepository.createQueryBuilder('event');
+
+    const events = await queryBuilder
+      .leftJoinAndSelect('event.organization', 'organization')
+      .leftJoinAndSelect('event.typeEvent', 'typeEvent')
+      .leftJoinAndSelect('event.ubication', 'ubication')
+      .leftJoinAndSelect('event.images', 'images')
+      .leftJoinAndSelect('event.user', 'user')
+      .where('event.status = :status', { status: status.ACTIVE })
+      .andWhere('event.user.id = :userId', { userId: user.id })
+      .getMany();
+
+    if (!events) throw new BadRequestException('Events not found');
 
     const plainEvents = events.map((event) => this.findPlain(event));
 
@@ -176,16 +199,20 @@ export class EventService {
     return plainEvent;
   }
 
-  public async update(id: string, updateEventDto: UpdateEventDto) {
+  public async update(id: string, updateEventDto: UpdateEventDto, user: User) {
     const event = await this.findOne(id);
 
     if (!event) throw new BadRequestException(`Event not ${id} not found`);
+
+    if (event.user.id !== user.id)
+      throw new BadRequestException(`Event not ${user.id} not found`);
 
     const { images, ubication, ...toUpdate } = updateEventDto;
 
     const eventUpdated = await this.eventRepository.preload({
       id,
       ...toUpdate,
+      user: user,
     });
 
     if (!eventUpdated)
@@ -198,10 +225,8 @@ export class EventService {
 
     try {
       if (images) {
-        // Aseguramos que images sea un arreglo
         const imagesArray = Array.isArray(images) ? images : [images];
 
-        // Buscar imágenes antiguas y borrarlas
         const imagesToDelete = await this.imageEventRepository.find({
           where: { event: { id } },
           relations: ['event'],

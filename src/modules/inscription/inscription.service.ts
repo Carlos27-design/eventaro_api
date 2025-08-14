@@ -32,7 +32,7 @@ export class InscriptionService {
 
   public async create(createInscriptionDto: CreateInscriptionDto, user: User) {
     try {
-      const { userId, eventId, dateInscription } = createInscriptionDto;
+      const { userId, eventId, dateInscription, token } = createInscriptionDto;
 
       const now = moment();
 
@@ -42,11 +42,11 @@ export class InscriptionService {
 
       if (!event) throw new BadRequestException('Event not found');
 
-      if (user.id === userId) throw new BadRequestException('User not found');
+      if (user.id !== userId) throw new BadRequestException('User not found');
 
       const inscription = this.inscriptionRepository.create({
         dateInscription: moment(dateInscription).format('DD/MM/YYYY'),
-        token: uuid(),
+        token: token,
         tokenExpiresAt: expiresAt,
         user: { id: userId },
         event: { id: eventId },

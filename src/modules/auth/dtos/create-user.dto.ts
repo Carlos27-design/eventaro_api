@@ -1,5 +1,4 @@
 import {
-  IsArray,
   IsEmail,
   IsString,
   Matches,
@@ -30,8 +29,4 @@ export class CreateUserDto {
     },
   )
   password: string;
-
-  @IsString({ each: true })
-  @IsArray()
-  role: string[];
 }

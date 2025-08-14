@@ -5,8 +5,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
-  ValidateNested,
 } from 'class-validator';
 
 export class CreateEventDto {

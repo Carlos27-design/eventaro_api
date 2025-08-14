@@ -21,13 +21,20 @@ export class EventController {
   constructor(private readonly _eventService: EventService) {}
 
   @Post()
-  create(@Body() createEventDto: CreateEventDto) {
-    return this._eventService.create(createEventDto);
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
+  create(@Body() createEventDto: CreateEventDto, @GetUser() user: User) {
+    return this._eventService.create(createEventDto, user);
   }
 
   @Get()
   findAll() {
     return this._eventService.findAll();
+  }
+
+  @Get()
+  @Auth(ValidRoles.ORGANIZER)
+  getEvents(@GetUser() user: User) {
+    return this._eventService.getEventsByOrganize(user);
   }
 
   @Get('admin')
@@ -47,15 +54,18 @@ export class EventController {
   }
 
   @Patch(':id')
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateEventDto: UpdateEventDto,
+    @GetUser() user: User,
   ) {
-    return this._eventService.update(id, updateEventDto);
+    return this._eventService.update(id, updateEventDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
+  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
     return this._eventService.remove(id);
   }
 }

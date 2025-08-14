@@ -29,19 +29,19 @@ export class InscriptionController {
     return this._inscriptionService.create(createInscriptionDto, user);
   }
 
-  @Auth(ValidRoles.ADMIN)
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
   @Get()
   findAll() {
     return this._inscriptionService.findAll();
   }
 
-  @Auth(ValidRoles.ADMIN)
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this._inscriptionService.findOne(id);
   }
 
-  @Auth()
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -50,7 +50,7 @@ export class InscriptionController {
     return this._inscriptionService.update(id, updateInscriptionDto);
   }
 
-  @Auth()
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this._inscriptionService.remove(id);
