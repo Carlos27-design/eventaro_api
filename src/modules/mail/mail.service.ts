@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as mailer from 'nodemailer';
 
-
 @Injectable()
 export class MailService {
   private transport: mailer.Transporter;
