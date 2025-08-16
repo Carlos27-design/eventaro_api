@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as mailer from 'nodemailer';
-import { Subject } from 'rxjs';
+
 
 @Injectable()
 export class MailService {
