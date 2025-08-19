@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { status } from 'src/shared/status.enum';
+import { CreateUserAdminDto } from './dtos/create-user-admin.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +26,28 @@ export class AuthService {
   public async register(createUserDto: CreateUserDto) {
     try {
       const { password, ...rest } = createUserDto;
+      const salt = 10;
+      const user = this.userRepository.create({
+        ...rest,
+        password: bcrypt.hashSync(password, salt),
+      });
+
+      await this.userRepository.save(user);
+
+      delete user.password;
+
+      return {
+        user: user,
+        token: this.getJwtToken({ id: user.id }),
+      };
+    } catch (error) {
+      this.handleDBErrors(error);
+    }
+  }
+
+  public async registerUserAdmin(createUserAdminDto: CreateUserAdminDto) {
+    try {
+      const { password, ...rest } = createUserAdminDto;
       const salt = 10;
       const user = this.userRepository.create({
         ...rest,

@@ -5,6 +5,7 @@ import { LoginUserDto } from './dtos/login-user.dto';
 import { GetUser } from './decorators/get-user.decorator';
 import { User } from './entity/user.entity';
 import { Auth } from './decorators/auth.decorator';
+import { CreateUserAdminDto } from './dtos/create-user-admin.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -13,6 +14,11 @@ export class AuthController {
   @Post('register')
   register(@Body() createUserDto: CreateUserDto) {
     return this._authService.register(createUserDto);
+  }
+
+  @Post('register-admin')
+  registerAdmin(@Body() createUserAdminDto: CreateUserAdminDto) {
+    return this._authService.registerUserAdmin(createUserAdminDto);
   }
 
   @Post('login')
