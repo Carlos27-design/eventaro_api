@@ -32,7 +32,7 @@ export class InscriptionService {
 
   public async create(createInscriptionDto: CreateInscriptionDto, user: User) {
     try {
-      const { userId, eventId, dateInscription, token } = createInscriptionDto;
+      const { eventId, dateInscription } = createInscriptionDto;
 
       const now = moment();
 
@@ -42,19 +42,19 @@ export class InscriptionService {
 
       if (!event) throw new BadRequestException('Event not found');
 
-      if (user.id !== userId) throw new BadRequestException('User not found');
+      if (!user.id) throw new BadRequestException('User not found');
 
       const inscription = this.inscriptionRepository.create({
-        dateInscription: moment(dateInscription).format('DD/MM/YYYY'),
-        token: token,
+        dateInscription: moment(dateInscription).format('YYYY-MM-DD'),
+        token: uuid(),
         tokenExpiresAt: expiresAt,
-        user: { id: userId },
+        user: { id: user.id },
         event: { id: eventId },
       });
 
       await this.inscriptionRepository.save(inscription);
 
-      const targetUser = await this._authService.getOne(userId);
+      const targetUser = await this._authService.getOne(user.id);
 
       await this._mailService.sendMail({
         to: targetUser.email,
@@ -89,6 +89,13 @@ export class InscriptionService {
     return inscriptions;
   }
 
+  public async findExistInscription(user: User, eventId: string) {
+    this.inscriptionRepository.existsBy({
+      user: { id: user.id },
+      event: { id: eventId },
+    });
+  }
+
   public async findOne(id: string) {
     const queryBuilder =
       this.inscriptionRepository.createQueryBuilder('inscription');
@@ -105,47 +112,6 @@ export class InscriptionService {
     if (!inscription) throw new BadRequestException('Inscription not found');
 
     return inscription;
-  }
-
-  public async update(id: string, updateInscriptionDto: UpdateInscriptionDto) {
-    const { token } = updateInscriptionDto;
-
-    const inscription = await this.findOne(id);
-
-    if (!inscription.token || inscription.token !== token)
-      throw new BadRequestException('token not valid');
-
-    const now = moment();
-    const expiresAt = moment(inscription.tokenExpiresAt);
-
-    if (now.isAfter(expiresAt)) {
-      throw new BadRequestException('token expired');
-    }
-
-    inscription.statusInscription = statusInscription.ACEPTADA;
-    inscription.token = null;
-    inscription.tokenExpiresAt = null;
-
-    try {
-      await this.inscriptionRepository.save(inscription);
-
-      const user = await this._authService.getOne(inscription.user.id);
-
-      const event = await this._eventService.findOne(inscription.event.id);
-
-      await this._mailService.sendMail({
-        to: user.email,
-        subject: `Confirmación de inscripción al evento ${event.name}`,
-        html: `
-          <h1>Confirmación de inscripción al evento ${event.name}</h1>
-          <p>Hola ${user.fullName}</p>
-          <p>Tu incripción al evento <strong>${event.name}</strong> ha sido aceptada</p>
-          <p>Gracias por participar</p>
-        `,
-      });
-    } catch (error) {
-      this.handleDBError(error);
-    }
   }
 
   public async remove(id: string) {
@@ -176,6 +142,7 @@ export class InscriptionService {
     }
     throw new InternalServerErrorException(
       'Unexpected error, check server logs',
+      error,
     );
   }
 }

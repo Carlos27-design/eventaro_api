@@ -41,13 +41,13 @@ export class InscriptionController {
     return this._inscriptionService.findOne(id);
   }
 
-  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
-  @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateInscriptionDto: UpdateInscriptionDto,
+  @Auth()
+  @Get('exist/:eventId')
+  findExistInscription(
+    @Param('eventId') eventId: string,
+    @GetUser() user: User,
   ) {
-    return this._inscriptionService.update(id, updateInscriptionDto);
+    return this._inscriptionService.findExistInscription(user, eventId);
   }
 
   @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)

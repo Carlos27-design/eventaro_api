@@ -7,12 +7,4 @@ export class CreateInscriptionDto {
   @IsString()
   @IsUUID()
   eventId: string;
-
-  @IsString()
-  @IsUUID()
-  token: string;
-
-  @IsString()
-  @IsUUID()
-  userId: string;
 }
