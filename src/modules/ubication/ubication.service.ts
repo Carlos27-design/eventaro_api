@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ubication } from './entity/ubication.entity';
 import { Repository } from 'typeorm';
-import { CreateUbicationDto } from './dtos/create-ubication.dto';
 
 @Injectable()
 export class UbicationService {

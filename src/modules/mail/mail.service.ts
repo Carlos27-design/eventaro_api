@@ -7,9 +7,7 @@ export class MailService {
 
   constructor() {
     this.transport = mailer.createTransport({
-      host: process.env.HOST_SMTP,
-      port: +process.env.PORT_SMTP,
-      secure: false,
+      service: process.env.SERVICE_SMTP,
       auth: {
         user: process.env.USER_SMTP,
         pass: process.env.PASSWORD_SMTP,
