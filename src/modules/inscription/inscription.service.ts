@@ -54,7 +54,7 @@ export class InscriptionService {
 
       await this.inscriptionRepository.save(inscription);
 
-      const targetUser = await this._authService.getOne(user.id);
+      const targetUser = await this._authService.getUserById(user.id);
 
       await this._mailService.sendMail({
         to: targetUser.email,
@@ -89,8 +89,11 @@ export class InscriptionService {
     return inscriptions;
   }
 
-  public async findExistInscription(user: User, eventId: string) {
-    this.inscriptionRepository.existsBy({
+  public async findExistInscription(
+    user: User,
+    eventId: string,
+  ): Promise<boolean> {
+    return await this.inscriptionRepository.existsBy({
       user: { id: user.id },
       event: { id: eventId },
     });

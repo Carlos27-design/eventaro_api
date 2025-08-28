@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -28,9 +29,10 @@ export class CreateUserAdminDto {
         'La contraseña debe tener al menos 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial (@$!%*?&).',
     },
   )
-  password: string;
+  @IsOptional()
+  password?: string;
 
   @IsString()
   @MinLength(3)
-  roles: string;
+  role: string;
 }

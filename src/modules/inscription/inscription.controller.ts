@@ -44,7 +44,7 @@ export class InscriptionController {
   @Auth()
   @Get('exist/:eventId')
   findExistInscription(
-    @Param('eventId') eventId: string,
+    @Param('eventId', ParseUUIDPipe) eventId: string,
     @GetUser() user: User,
   ) {
     return this._inscriptionService.findExistInscription(user, eventId);
