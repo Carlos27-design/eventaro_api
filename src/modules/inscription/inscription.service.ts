@@ -11,7 +11,6 @@ import { CreateInscriptionDto } from './dtos/create-inscription.dto';
 import { User } from '../auth/entity/user.entity';
 import * as moment from 'moment';
 import { v4 as uuid } from 'uuid';
-import { UpdateInscriptionDto } from './dtos/update-inscription.dto';
 import { statusInscription } from 'src/shared/status-inscription.enum';
 import { MailService } from '../mail/mail.service';
 import { status } from 'src/shared/status.enum';
