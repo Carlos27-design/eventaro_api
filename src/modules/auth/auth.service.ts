@@ -33,6 +33,8 @@ export class AuthService {
       })
       .getMany();
 
+    users.forEach((user) => delete user.password);
+
     return users;
   }
 
@@ -43,6 +45,8 @@ export class AuthService {
       .where('user.id = :id', { id: userId })
       .andWhere('user.status = :status', { status: status.ACTIVE })
       .getOne();
+
+    delete user.password;
 
     return user;
   }
