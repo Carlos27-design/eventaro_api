@@ -11,11 +11,11 @@ export class Inscription extends StandardEntity {
   @Column('varchar', { nullable: false, default: 'PENDIENTE', length: 30 })
   statusInscription: string;
 
-  @Column('varchar', { nullable: false })
-  token: string;
+  @Column('varchar', { nullable: true })
+  token?: string;
 
   @Column('timestamp', { nullable: true })
-  tokenExpiresAt: Date;
+  tokenExpiresAt?: Date;
 
   @ManyToOne(() => Event, (event) => event.inscription)
   event: Event;

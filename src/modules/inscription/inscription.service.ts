@@ -15,6 +15,7 @@ import { statusInscription } from 'src/shared/status-inscription.enum';
 import { MailService } from '../mail/mail.service';
 import { status } from 'src/shared/status.enum';
 import { AuthService } from '../auth/auth.service';
+import { UpdateInscriptionDto } from './dtos/update-inscription.dto';
 
 @Injectable()
 export class InscriptionService {
@@ -33,15 +34,32 @@ export class InscriptionService {
     try {
       const { eventId, dateInscription } = createInscriptionDto;
 
-      const now = moment();
-
-      const expiresAt = now.add(1, 'day').toDate();
-
       const event = await this._eventService.findOne(eventId);
 
       if (!event) throw new BadRequestException('Event not found');
 
       if (!user.id) throw new BadRequestException('User not found');
+
+      const eventDate = moment(event.initialDate).startOf('day');
+      const inscriptionDate = moment(dateInscription).startOf('day');
+
+      if (eventDate.isSame(inscriptionDate)) {
+        throw new BadRequestException('No se que inicia el mismo día');
+      }
+
+      const existingInscriptions = await this.findInscripitionsPerUser(user);
+
+      const alreadyRegistered = existingInscriptions.some((insc) =>
+        moment(insc.event.initialDate).startOf('day').isSame(eventDate),
+      );
+
+      if (alreadyRegistered) {
+        throw new BadRequestException(
+          'Ya esta inscrito en un evento que inicia el mismo dia',
+        );
+      }
+
+      const expiresAt = moment(event.initialDate).endOf('day').toDate();
 
       const inscription = this.inscriptionRepository.create({
         dateInscription: moment(dateInscription).format('YYYY-MM-DD'),
@@ -67,6 +85,10 @@ export class InscriptionService {
         `,
       });
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
       this.handleDBError(error);
     }
   }
@@ -79,6 +101,39 @@ export class InscriptionService {
       .leftJoinAndSelect('inscription.user', 'user')
       .leftJoinAndSelect('inscription.event', 'event')
       .where('inscription.status = :status', {
+        status: status.ACTIVE,
+      })
+      .getMany();
+
+    if (!inscriptions) throw new BadRequestException('Inscriptions not found');
+
+    await Promise.all(
+      inscriptions.map(async (inscription) => {
+        if (
+          inscription.tokenExpiresAt &&
+          inscription.tokenExpiresAt > inscription.event!.initialDate
+        ) {
+          inscription.tokenExpiresAt = null;
+          inscription.token = null;
+          inscription.statusInscription = statusInscription.RECHAZADA;
+
+          await this.update(inscription.id, inscription);
+        }
+      }),
+    );
+
+    return inscriptions;
+  }
+
+  private async findInscripitionsPerUser(user: User) {
+    const queryBuilder =
+      this.inscriptionRepository.createQueryBuilder('inscription');
+
+    const inscriptions = await queryBuilder
+      .leftJoinAndSelect('inscription.user', 'user')
+      .leftJoinAndSelect('inscription.event', 'event')
+      .where('user.id = :userId', { userId: user.id })
+      .andWhere('inscription.status = :status', {
         status: status.ACTIVE,
       })
       .getMany();
@@ -116,6 +171,17 @@ export class InscriptionService {
     return inscription;
   }
 
+  public async update(id: string, inscription: Inscription) {
+    inscription = await this.findOne(id);
+
+    if (!inscription) throw new BadRequestException('Inscription not found');
+
+    try {
+      await this.inscriptionRepository.update(id, inscription);
+    } catch (error) {
+      this.handleDBError(error);
+    }
+  }
   public async remove(id: string) {
     const inscription = await this.findOne(id);
     const event = await this._eventService.findOne(inscription.event.id);
