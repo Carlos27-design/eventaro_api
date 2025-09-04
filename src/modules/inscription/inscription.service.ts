@@ -16,6 +16,7 @@ import { MailService } from '../mail/mail.service';
 import { status } from 'src/shared/status.enum';
 import { AuthService } from '../auth/auth.service';
 import { UpdateInscriptionDto } from './dtos/update-inscription.dto';
+import { ImageEvent } from '../event/entity/image-event.entity';
 
 @Injectable()
 export class InscriptionService {
@@ -125,13 +126,17 @@ export class InscriptionService {
     return inscriptions;
   }
 
-  private async findInscripitionsPerUser(user: User) {
+  public async findInscripitionsPerUser(user: User) {
     const queryBuilder =
       this.inscriptionRepository.createQueryBuilder('inscription');
 
     const inscriptions = await queryBuilder
       .leftJoinAndSelect('inscription.user', 'user')
       .leftJoinAndSelect('inscription.event', 'event')
+      .leftJoinAndSelect('event.organization', 'organization')
+      .leftJoinAndSelect('event.images', 'images')
+      .leftJoinAndSelect('event.typeEvent', 'typeEvent')
+      .leftJoinAndSelect('event.ubication', 'ubication')
       .where('user.id = :userId', { userId: user.id })
       .andWhere('inscription.status = :status', {
         status: status.ACTIVE,
@@ -139,6 +144,13 @@ export class InscriptionService {
       .getMany();
 
     if (!inscriptions) throw new BadRequestException('Inscriptions not found');
+
+    inscriptions.map((inscription) => {
+      delete inscription.user.password;
+      inscription.event.images = inscription.event.images.map(
+        (image) => image.url,
+      );
+    });
 
     return inscriptions;
   }

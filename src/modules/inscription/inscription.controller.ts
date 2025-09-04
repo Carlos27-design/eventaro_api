@@ -19,6 +19,11 @@ import { ValidRoles } from '../auth/interfaces';
 @Controller('inscription')
 export class InscriptionController {
   constructor(private readonly _inscriptionService: InscriptionService) {}
+  @Auth()
+  @Get('inscriptions/user')
+  findInscriptionsPerUser(@GetUser() user: User) {
+    return this._inscriptionService.findInscripitionsPerUser(user);
+  }
 
   @Auth()
   @Post()

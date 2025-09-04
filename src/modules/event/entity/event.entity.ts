@@ -27,7 +27,7 @@ export class Event extends StandardEntity {
   @OneToMany(() => ImageEvent, (imageEvent) => imageEvent.event, {
     cascade: true,
   })
-  images?: ImageEvent[];
+  images?: ImageEvent[] | string[];
 
   @ManyToOne(() => Ubication, (ubication) => ubication.event)
   ubication: Ubication;
