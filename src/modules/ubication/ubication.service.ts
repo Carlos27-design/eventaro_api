@@ -14,7 +14,7 @@ export class UbicationService {
 
   public async create(ubicacion: string) {
     try {
-      const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${ubicacion}&access_token=${this.MAPBOX_TOKEN}`;
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(ubicacion)}.json?country=CL&access_token=${this.MAPBOX_TOKEN}`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -22,7 +22,7 @@ export class UbicationService {
         throw new Error('No se encontraron coordenadas para la ubicación');
       }
 
-      const [lat, lng] = data.features[0].geometry.coordinates;
+      const [lng, lat] = data.features[0].geometry.coordinates;
 
       const ubication = this.ubicationRepository.create({
         name: ubicacion,

@@ -101,12 +101,23 @@ export class InscriptionService {
     const inscriptions = await queryBuilder
       .leftJoinAndSelect('inscription.user', 'user')
       .leftJoinAndSelect('inscription.event', 'event')
+      .leftJoinAndSelect('event.organization', 'organization')
+      .leftJoinAndSelect('event.images', 'images')
+      .leftJoinAndSelect('event.typeEvent', 'typeEvent')
+      .leftJoinAndSelect('event.ubication', 'ubication')
       .where('inscription.status = :status', {
         status: status.ACTIVE,
       })
       .getMany();
 
     if (!inscriptions) throw new BadRequestException('Inscriptions not found');
+
+    inscriptions.map((inscription) => {
+      delete inscription.user.password;
+      inscription.event.images = inscription.event.images.map(
+        (image) => image.url,
+      );
+    });
 
     await Promise.all(
       inscriptions.map(async (inscription) => {
@@ -172,11 +183,20 @@ export class InscriptionService {
     const inscription = await queryBuilder
       .leftJoinAndSelect('inscription.user', 'user')
       .leftJoinAndSelect('inscription.event', 'event')
+      .leftJoinAndSelect('event.organization', 'organization')
+      .leftJoinAndSelect('event.images', 'images')
+      .leftJoinAndSelect('event.typeEvent', 'typeEvent')
+      .leftJoinAndSelect('event.ubication', 'ubication')
       .where('inscription.id = :id', { id: id })
       .andWhere('inscription.status = :status', {
         status: status.ACTIVE,
       })
       .getOne();
+
+    delete inscription.user.password;
+    inscription.event.images = inscription.event.images.map(
+      (image) => image.url,
+    );
 
     if (!inscription) throw new BadRequestException('Inscription not found');
 
