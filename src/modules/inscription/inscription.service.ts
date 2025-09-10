@@ -214,6 +214,52 @@ export class InscriptionService {
       this.handleDBError(error);
     }
   }
+
+  public async acceptInscription(token: string) {
+    const inscription = await this.inscriptionRepository.findOne({
+      where: {
+        token: token,
+      },
+      relations: ['event'],
+    });
+
+    if (!inscription) throw new BadRequestException('Inscription not found');
+
+    if (token !== inscription.token)
+      throw new BadRequestException('incorrect token');
+
+    const initialDate = moment(inscription.event.initialDate).format(
+      'YYYY-MM-DD',
+    );
+    const finalDate = moment(inscription.event.finalDate).format('YYYY-MM-DD');
+    const currentDate = moment().format('YYYY-MM-DD');
+
+    if (initialDate > finalDate) {
+      inscription.statusInscription = statusInscription.RECHAZADA;
+      await this.update(inscription.id, inscription);
+
+      return {
+        message: "the event hasn't started yet",
+        status: inscription.statusInscription,
+      };
+    }
+
+    if (currentDate < initialDate) {
+      return {
+        message: "the event hasn't started yet",
+        status: inscription.statusInscription,
+      };
+    }
+
+    inscription.statusInscription = statusInscription.ACEPTADA;
+    await this.update(inscription.id, inscription);
+
+    return {
+      message: 'Inscription accepted',
+      status: inscription.statusInscription,
+    };
+  }
+
   public async remove(id: string) {
     const inscription = await this.findOne(id);
     const event = await this._eventService.findOne(inscription.event.id);

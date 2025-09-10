@@ -56,6 +56,12 @@ export class InscriptionController {
   }
 
   @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
+  @Patch(':token')
+  acceptInscription(@Param('token') token: string) {
+    return this._inscriptionService.acceptInscription(token);
+  }
+
+  @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this._inscriptionService.remove(id);
