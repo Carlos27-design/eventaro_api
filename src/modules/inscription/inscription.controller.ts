@@ -56,8 +56,8 @@ export class InscriptionController {
   }
 
   @Auth(ValidRoles.ADMIN, ValidRoles.ORGANIZER)
-  @Patch(':token')
-  acceptInscription(@Param('token') token: string) {
+  @Patch('accept')
+  acceptInscription(@Body('token') token: string) {
     return this._inscriptionService.acceptInscription(token);
   }
 

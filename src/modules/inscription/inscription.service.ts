@@ -15,8 +15,6 @@ import { statusInscription } from 'src/shared/status-inscription.enum';
 import { MailService } from '../mail/mail.service';
 import { status } from 'src/shared/status.enum';
 import { AuthService } from '../auth/auth.service';
-import { UpdateInscriptionDto } from './dtos/update-inscription.dto';
-import { ImageEvent } from '../event/entity/image-event.entity';
 
 @Injectable()
 export class InscriptionService {
@@ -58,6 +56,14 @@ export class InscriptionService {
         throw new BadRequestException(
           'Ya esta inscrito en un evento que inicia el mismo dia',
         );
+      }
+
+      if (typeof event.capacity === 'number') {
+        if (event.capacity <= 0) {
+          throw new BadRequestException('No hay cupos disponibles');
+        }
+        event.capacity -= 1;
+        await this._eventService.updateCapacity(event.id, event.capacity);
       }
 
       const expiresAt = moment(event.initialDate).endOf('day').toDate();
@@ -217,46 +223,44 @@ export class InscriptionService {
 
   public async acceptInscription(token: string) {
     const inscription = await this.inscriptionRepository.findOne({
-      where: {
-        token: token,
-      },
+      where: { token: token.trim() },
       relations: ['event'],
     });
 
-    if (!inscription) throw new BadRequestException('Inscription not found');
+    if (!inscription) {
+      throw new BadRequestException('Inscription not found');
+    }
 
-    if (token !== inscription.token)
-      throw new BadRequestException('incorrect token');
+    const now = moment();
+    const start = moment(inscription.event.initialDate);
+    const end = moment(inscription.event.finalDate);
 
-    const initialDate = moment(inscription.event.initialDate).format(
-      'YYYY-MM-DD',
-    );
-    const finalDate = moment(inscription.event.finalDate).format('YYYY-MM-DD');
-    const currentDate = moment().format('YYYY-MM-DD');
-
-    if (initialDate > finalDate) {
-      inscription.statusInscription = statusInscription.RECHAZADA;
-      await this.update(inscription.id, inscription);
-
+    if (now.isBefore(start)) {
       return {
-        message: "the event hasn't started yet",
+        message: "The event hasn't started yet",
         status: inscription.statusInscription,
+        event: inscription.event,
       };
     }
 
-    if (currentDate < initialDate) {
+    if (now.isAfter(end)) {
+      inscription.statusInscription = statusInscription.RECHAZADA;
+      await this.inscriptionRepository.save(inscription);
+
       return {
-        message: "the event hasn't started yet",
+        message: 'The event has already finished',
         status: inscription.statusInscription,
+        event: inscription.event,
       };
     }
 
     inscription.statusInscription = statusInscription.ACEPTADA;
-    await this.update(inscription.id, inscription);
+    await this.inscriptionRepository.save(inscription);
 
     return {
       message: 'Inscription accepted',
       status: inscription.statusInscription,
+      event: inscription.event,
     };
   }
 

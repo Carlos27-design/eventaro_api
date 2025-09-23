@@ -3,6 +3,7 @@ import {
   IsArray,
   IsDateString,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -21,6 +22,10 @@ export class CreateEventDto {
 
   @IsDateString()
   finalDate: Date;
+
+  @IsOptional()
+  @IsNumber()
+  capacity?: number;
 
   @IsString({
     each: true,

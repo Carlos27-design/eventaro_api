@@ -264,6 +264,10 @@ export class EventService {
     });
   }
 
+  public async updateCapacity(eventId: string, capacity: number) {
+    await this.eventRepository.update(eventId, { capacity });
+  }
+
   private handleDBError(error: any) {
     if (error.code === 'ER_DUP_ENTRY') {
       throw new BadRequestException(error.sqlMessage);

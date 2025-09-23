@@ -21,6 +21,9 @@ export class Event extends StandardEntity {
   @Column('date', { nullable: false })
   finalDate: Date;
 
+  @Column('integer', { nullable: true })
+  capacity: number;
+
   @Column('varchar', { nullable: false, default: 'CREADO', length: 13 })
   statusEvent: string;
 
