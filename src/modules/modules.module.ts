@@ -5,6 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfig } from '../database/database.config';
 import { TypeEventModule } from './type-event/type-event.module';
 import { OrganizationModule } from './organization/organization.module';
+import { UbicationModule } from './ubication/ubication.module';
+import { EventModule } from './event/event.module';
+import { FilesModule } from './files/files.module';
+import { AuthModule } from './auth/auth.module';
+import { InscriptionModule } from './inscription/inscription.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -12,6 +18,12 @@ import { OrganizationModule } from './organization/organization.module';
     TypeOrmModule.forRoot(databaseConfig()),
     TypeEventModule,
     OrganizationModule,
+    UbicationModule,
+    EventModule,
+    FilesModule,
+    AuthModule,
+    InscriptionModule,
+    MailModule,
   ],
   exports: [TypeOrmModule],
 })

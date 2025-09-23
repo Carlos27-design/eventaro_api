@@ -1,5 +1,6 @@
+import { Event } from 'src/modules/event/entity/event.entity';
 import { StandardEntity } from 'src/modules/standard.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity()
 export class Organization extends StandardEntity {
@@ -11,4 +12,7 @@ export class Organization extends StandardEntity {
 
   @Column('varchar', { nullable: false })
   email: string;
+
+  @OneToMany(() => Event, (event) => event.organization)
+  event: Event[];
 }

@@ -1,0 +1,60 @@
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Ubication } from './entity/ubication.entity';
+import { Repository } from 'typeorm';
+
+@Injectable()
+export class UbicationService {
+  constructor(
+    @InjectRepository(Ubication)
+    private readonly ubicationRepository: Repository<Ubication>,
+  ) {}
+
+  private readonly MAPBOX_TOKEN = process.env.API_KEY_MAPBOX;
+
+  public async create(ubicacion: string) {
+    try {
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(ubicacion)}.json?country=CL&access_token=${this.MAPBOX_TOKEN}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!data.features || data.features.length === 0) {
+        throw new Error('No se encontraron coordenadas para la ubicación');
+      }
+
+      const [lng, lat] = data.features[0].geometry.coordinates;
+
+      const ubication = this.ubicationRepository.create({
+        name: ubicacion,
+        latitude: lat,
+        longitude: lng,
+      });
+
+      return await this.ubicationRepository.save(ubication);
+    } catch (error) {
+      throw new Error('No se encontraron coordenadas para la ubicación');
+    }
+  }
+
+  public async findOne(id: string) {
+    const queryBuilder =
+      this.ubicationRepository.createQueryBuilder('ubication');
+
+    const ubication = await queryBuilder
+      .where('ubication.id = :id', { id: id })
+      .getOne();
+
+    if (!ubication)
+      throw new BadRequestException(`Ubication not ${id} not found`);
+
+    return ubication;
+  }
+
+  public async remove(id: string) {
+    const ubication = await this.findOne(id);
+
+    ubication.status = 'INACTIVE';
+
+    return await this.ubicationRepository.save(ubication);
+  }
+}

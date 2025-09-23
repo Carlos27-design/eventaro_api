@@ -1,0 +1,50 @@
+import { StandardEntity } from 'src/modules/standard.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { ImageEvent } from './image-event.entity';
+import { Ubication } from 'src/modules/ubication/entity/ubication.entity';
+import { TypeEvent } from 'src/modules/type-event/entity/type-event.entity';
+import { Organization } from 'src/modules/organization/entity/organization.entity';
+import { Inscription } from 'src/modules/inscription/entity/inscription.entity';
+import { User } from 'src/modules/auth/entity/user.entity';
+
+@Entity()
+export class Event extends StandardEntity {
+  @Column('varchar', { nullable: false, unique: true })
+  name: string;
+
+  @Column('varchar', { nullable: false })
+  description: string;
+
+  @Column('date', { nullable: false })
+  initialDate: Date;
+
+  @Column('date', { nullable: false })
+  finalDate: Date;
+
+  @Column('integer', { nullable: true })
+  capacity: number;
+
+  @Column('varchar', { nullable: false, default: 'CREADO', length: 13 })
+  statusEvent: string;
+
+  @OneToMany(() => ImageEvent, (imageEvent) => imageEvent.event, {
+    cascade: true,
+  })
+  images?: ImageEvent[] | string[];
+
+  @ManyToOne(() => Ubication, (ubication) => ubication.event)
+  ubication: Ubication;
+
+  @ManyToOne(() => TypeEvent, (typeEvent) => typeEvent.event)
+  typeEvent: TypeEvent;
+
+  @ManyToOne(() => Organization, (organization) => organization.event)
+  organization: Organization;
+
+  @OneToMany(() => Inscription, (inscription) => inscription.event)
+  inscription: Inscription[];
+
+  @ManyToOne(() => User, (user) => user.event)
+  @JoinColumn({ name: 'userId' })
+  user: User;
+}
